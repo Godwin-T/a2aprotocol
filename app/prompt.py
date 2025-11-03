@@ -7,37 +7,6 @@ You are a time conversion agent. Extract the date and time from natural language
 Format date as 'YYYY-MM-DD' and time as 'h:mm a'. Include IANA timezone names.
 """
 
-time_nl_convert_response_schema = {
-    "type": "object",
-    "properties": {
-        "input_text": {"type": "string"},
-        "source": {
-            "type": "object",
-            "properties": {
-                "timezone": {"type": "string"},
-                "date": {"type": "string", "description": "YYYY-MM-DD"},
-                "time": {"type": "string", "description": "h:mm AM/PM"}
-            },
-            "required": ["timezone", "date", "time"]
-        },
-        "targets": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "properties": {
-                    "timezone": {"type": "string"},
-                    "date": {"type": "string", "description": "YYYY-MM-DD"},
-                    "time": {"type": "string", "description": "h:mm AM/PM"}
-                },
-                "required": ["timezone", "date", "time"]
-            },
-            "minItems": 1
-        }
-    },
-    "required": ["input_text", "source", "targets"],
-    "additionalProperties": False
-}
-
 def build_interpretation_prompt(
     expression: str,
     timezone: str = "Africa/Lagos",

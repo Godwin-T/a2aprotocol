@@ -51,14 +51,28 @@ class TimeCoordinationAgent:
                 "json_schema": {"name":"time-conversion-response", "schema": TimeNLConvertResponse.model_json_schema()},
             }
         )
-        response = TimeNLConvertResponse.model_validate(json.loads(response.choices[0].message.content))
+        response = json.loads(response.choices[0].message.content)
+        try:
+            response = TimeNLConvertResponse(**response)
+        except Exception as e:
+            raise ValueError(f"Failed to parse LLM response: {e}")
+
+        response = response.model_dump()
+
         # Build response message parts
-        response_parts = [
+        artifact_parts = [
             MessagePart(
                 kind="data",
                 data={
-                    "time_conversion": response.model_dump()
+                    "time_conversion": response
                 }
+            )
+        ]
+        message_parts = [
+            MessagePart(
+                kind="text",
+                text= f"Time conversion completed successfully. {response['output_text']}"
+                                                
             )
         ]
 
@@ -66,11 +80,14 @@ class TimeCoordinationAgent:
         task_result = TaskResult(
             id=task_id,
             contextId=context_id,
-            status=TaskStatus(state="completed"),
+            status=TaskStatus(state="completed", 
+                              message=A2AMessage(
+                                  role="agent",
+                                  parts=message_parts)),
             artifacts=[
                 Artifact(
                     name="time-conversion-response",
-                    parts=response_parts
+                    parts=artifact_parts
                 )
             ],
             history=[messages]

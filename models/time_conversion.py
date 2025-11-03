@@ -13,5 +13,6 @@ class TimeSource(BaseModel):
 
 class TimeNLConvertResponse(BaseModel):
     input_text: str = Field(..., description="Original natural language time text")
+    output_text: str = Field(..., description="Converted time text with all target timezones")
     source: TimeSource
     targets: List[TimeTarget]
