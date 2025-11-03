@@ -16,3 +16,6 @@ class TimeNLConvertResponse(BaseModel):
     output_text: str = Field(..., description="Converted time text with all target timezones")
     source: TimeSource
     targets: List[TimeTarget]
+
+class IntentResponse(BaseModel):
+    intent: str = Field(..., description="Identified intent from the input text")
