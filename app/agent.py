@@ -63,9 +63,9 @@ class TimeCoordinationAgent:
         artifact_parts = [
             MessagePart(
                 kind="data",
-                data={
+                data=[{
                     "time_conversion": response
-                }
+                }]
             )
         ]
         message_parts = [
