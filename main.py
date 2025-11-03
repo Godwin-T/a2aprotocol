@@ -8,12 +8,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
 from app.agents import (
-    ChannelHistorianAgent,
-    CommsStarterAgent,
-    QuickAnswerAgent,
-    ReviewPolishAgent,
     ScheduleTimeAgent,
-    SummariesInsightsAgent,
 )
 from app.config import settings
 from models.a2a import A2AMessage, JSONRPCRequest, JSONRPCResponse, TaskResult
@@ -26,11 +21,6 @@ app = FastAPI(
     version="2.0.0",
 )
 
-comms_agent = CommsStarterAgent()
-review_agent = ReviewPolishAgent()
-summary_agent = SummariesInsightsAgent()
-quick_agent = QuickAnswerAgent()
-historian_agent = ChannelHistorianAgent()
 schedule_agent = ScheduleTimeAgent(default_timezone=settings.default_timezone)
 
 
@@ -48,31 +38,6 @@ async def health_check():
             "schedule-time",
         ],
     }
-
-
-@app.post("/a2a/comms-starter")
-async def comms_starter_endpoint(request: Request):
-    return await _handle_agent_request(request, comms_agent.handle)
-
-
-@app.post("/a2a/review-polish")
-async def review_polish_endpoint(request: Request):
-    return await _handle_agent_request(request, review_agent.handle)
-
-
-@app.post("/a2a/summaries-insights")
-async def summaries_endpoint(request: Request):
-    return await _handle_agent_request(request, summary_agent.handle)
-
-
-@app.post("/a2a/quick-answer")
-async def quick_answer_endpoint(request: Request):
-    return await _handle_agent_request(request, quick_agent.handle)
-
-
-@app.post("/a2a/channel-historian")
-async def channel_historian_endpoint(request: Request):
-    return await _handle_agent_request(request, historian_agent.handle)
 
 
 @app.post("/a2a/schedule-time")
