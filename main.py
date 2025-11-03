@@ -43,63 +43,64 @@ async def health_check():
 @app.post("/a2a/time-coordinate")
 async def a2a_endpoint(request: Request):
     """Main A2A endpoint for time-coordination agent"""
-    try:
-        # Parse request body
-        body = await request.json()
+    # try:
+    # Parse request body
+    body = await request.json()
 
-        # Validate JSON-RPC request
-        if body.get("jsonrpc") != "2.0" or "id" not in body:
-            return JSONResponse(
-                status_code=400,
-                content={
-                    "jsonrpc": "2.0",
-                    "id": body.get("id"),
-                    "error": {
-                        "code": -32600,
-                        "message": "Invalid Request: jsonrpc must be '2.0' and id is required"
-                    }
-                }
-            )
-
-        rpc_request = JSONRPCRequest(**body)
-
-        # Extract messages
-        messages = []
-        context_id = None
-        task_id = None
-        config = None
-
-        message = rpc_request.params.message
-        message = message.model_dump()
-        # Process with time-coordination agent
-        result = await agent.process_messages(
-            messages=message,
-            context_id=context_id,
-            task_id=task_id,
-            config=config
-        )
-
-        # Build response
-        response = JSONRPCResponse(
-            id=rpc_request.id,
-            result=result
-        )
-
-        return response.model_dump()
-
-    except Exception as e:
+    # Validate JSON-RPC request
+    if body.get("jsonrpc") != "2.0" or "id" not in body:
         return JSONResponse(
-            status_code=500,
+            status_code=400,
             content={
                 "jsonrpc": "2.0",
-                "id": body.get("id") if "body" in locals() else None,
+                "id": body.get("id"),
                 "error": {
-                    "code": -32603,
-                    "message": "Internal error",
-                    "data": {"details": str(e)}
+                    "code": -32600,
+                    "message": "Invalid Request: jsonrpc must be '2.0' and id is required"
                 }
             }
         )
+
+    rpc_request = JSONRPCRequest(**body)
+
+    # Extract messages
+    messages = []
+    context_id = None
+    task_id = None
+    config = None
+
+    message = rpc_request.params.message
+    message = message.model_dump()
+    # Process with time-coordination agent
+    result = await agent.process_messages(
+        messages=message,
+        context_id=context_id,
+        task_id=task_id,
+        config=config
+    )
+    print(result)
+
+    # Build response
+    response = JSONRPCResponse(
+        id=rpc_request.id,
+        result=result
+    )
+
+    return response.model_dump()
+
+    # except Exception as e:
+    #     return JSONResponse(
+    #         status_code=500,
+    #         content={
+    #             "jsonrpc": "2.0",
+    #             "id": body.get("id") if "body" in locals() else None,
+    #             "error": {
+    #                 "code": -32603,
+    #                 "message": "Internal error",
+    #                 "data": {"details": str(e)}
+    #             }
+    #         }
+    #     )
 
 
 if __name__ == "__main__":
