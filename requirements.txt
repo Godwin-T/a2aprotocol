@@ -6,3 +6,4 @@ dateparser==1.2.0
 python-dotenv==1.0.1
 groq==0.33.0
 loguru==0.7.2
+instructor==1.5.2
