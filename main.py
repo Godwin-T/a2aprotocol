@@ -71,6 +71,7 @@ async def a2a_endpoint(request: Request):
 
     message = rpc_request.params.message
     message = message.model_dump()
+    print(message)
     # Process with time-coordination agent
     result = await agent.process_messages(
         messages=message,

@@ -19,7 +19,7 @@ class TimeCoordinationAgent:
 
     async def process_messages(
         self,
-        messages: List[A2AMessage],
+        messages: A2AMessage,
         context_id: Optional[str] = None,
         task_id: Optional[str] = None,
         config: Optional[MessageConfiguration] = None
