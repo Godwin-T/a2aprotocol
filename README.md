@@ -8,11 +8,6 @@ FastAPI service exposing multiple Agent-to-Agent (A2A) endpoints for common prod
 
 | Endpoint | Purpose |
 |----------|---------|
-| `POST /a2a/comms-starter` | Feeds briefs to a Groq-hosted LLM that drafts announcements, icebreakers, and feature blurbs. |
-| `POST /a2a/review-polish` | Uses an LLM editor to proofread, rewrite, or translate copy (any language supported by the model). |
-| `POST /a2a/summaries-insights` | Summarises long-form text, surfaces key points, and extracts action items via structured LLM output. |
-| `POST /a2a/quick-answer` | Answers FAQs from cached data or escalates to an LLM for free-form questions. |
-| `POST /a2a/channel-historian` | Sends channel snapshots to an LLM which highlights topics, decisions, and experts. |
 | `POST /a2a/schedule-time` | Upgraded time agent powered by an LLM prompt that returns conversions, meeting windows, and natural replies; still supports current-time lookups deterministically. |
 
 All endpoints return a JSON-RPC response shaped exactly like the original time agent, so downstream consumers require no protocol changes. Every agent call ultimately routes through the Groq chat completion API using carefully crafted prompts and JSON schemas.
@@ -26,18 +21,11 @@ All endpoints return a JSON-RPC response shaped exactly like the original time a
 ├── main.py                         # FastAPI app registering all agent routes
 ├── app/
 │   ├── agents/
-│   │   ├── channel_historian/      # Channel Historian agent implementation
-│   │   ├── comms_starter/          # Comms Starter agent implementation
-│   │   ├── quick_answer/           # Quick Answer Desk agent implementation
-│   │   ├── review_polish/          # Review & Polish agent implementation
 │   │   ├── schedule_time/          # Upgraded Schedule & Time agent
-│   │   └── summaries_insights/     # Summaries & Insights agent
 │   ├── shared/                     # Reusable helpers (message parsing, task builder, etc.)
 │   ├── config.py                   # Pydantic settings loader
 │   └── __init__.py
 ├── models/                         # JSON-RPC and time conversion schemas (unchanged)
-├── data/channel_snapshots/         # Optional offline data for the historian agent
-├── data/faq.json                   # Optional FAQ cache for quick answers
 ├── Dockerfile
 ├── requirements.txt
 └── README.md
@@ -70,7 +58,7 @@ All endpoints return a JSON-RPC response shaped exactly like the original time a
 }
 ```
 
-POST the payload to `http://localhost:5001/a2a/comms-starter`. The response body keeps the JSON-RPC envelope and embeds the generated announcement inside the first artifact.
+POST the payload to `http://localhost:5001/a2a/schedule-time`. The response body keeps the JSON-RPC envelope and embeds the generated announcement inside the first artifact.
 
 ---
 
@@ -143,31 +131,6 @@ docker run --rm \
 | `PROFILE_CSV` | Future use: path to user timezone directory CSV | *(none)* |
 
 > ⚠️ All agents call Groq's `chat.completions.create` endpoint under the hood. Set `GROQ_API_KEY` in your environment (or `.env`) before invoking them.
-
-### Optional Data Formats
-
-- `data/faq.json`: array of `{ "question": "...", "answer": "...", "source": "..." }`.
-- `data/channel_snapshots/<channel>/*.jsonl`: newline-delimited JSON objects `{ "user": "alice", "text": "message", "ts": "2024-05-01T10:30:00Z" }`.
-
----
-
-## Testing
-
-Unit and integration tests can be wired using pytest. Suggested layout:
-
-```
-tests/
-├── test_comms_starter.py
-├── test_review_polish.py
-├── test_summaries_insights.py
-├── test_quick_answer.py
-├── test_channel_historian.py
-└── test_schedule_time.py
-```
-
-Because each agent handler is asynchronous and returns a `TaskResult`, tests can instantiate the handler and feed synthetic `A2AMessage` objects without spinning up FastAPI.
-
----
 
 ## Extending the Service
 
